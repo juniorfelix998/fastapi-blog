@@ -1,3 +1,4 @@
+from typing import List
 from fastapi import FastAPI, Depends, status, Response, HTTPException
 from sqlalchemy.orm import Session
 
@@ -47,13 +48,13 @@ def update_blog(id, request: schemas.Blog, db: Session = Depends(get_db)):
     return 'updated successfully'
 
 
-@app.get('/blog', status_code=status.HTTP_200_OK)
+@app.get('/blog', status_code=status.HTTP_200_OK, response_model=List[schemas.ShowBlog])
 def get_blog_list(db: Session = Depends(get_db)):
     blogs = db.query(models.Blog).all()
     return blogs
 
 
-@app.get('/blog/{id}', status_code=200)
+@app.get('/blog/{id}', status_code=200, response_model=schemas.ShowBlog)
 def get_blog_detail(id, response: Response, db: Session = Depends(get_db)):
     blog = db.query(models.Blog).filter(models.Blog.id == id).first()
     if not blog:
@@ -61,3 +62,12 @@ def get_blog_detail(id, response: Response, db: Session = Depends(get_db)):
         # response.status_code = status.HTTP_404_NOT_FOUND
         # return {'detail': f'Blog with id {id} is not found'}
     return blog
+
+
+@app.post('/user')
+def create_user(request: schemas.User, db: Session = Depends(get_db)):
+    new_user = models.User(name=request.name, email=request.email, password=request.password)
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    return new_user
