@@ -5,6 +5,7 @@ from pydantic import BaseModel
 class BlogBase(BaseModel):
     title: str
     body: str
+    user_id: int
 
 
 class Blog(BlogBase):
@@ -34,3 +35,8 @@ class ShowBlog(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class Login(BaseModel):
+    username: str
+    password: str
